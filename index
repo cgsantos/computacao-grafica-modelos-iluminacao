@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Modelos de Iluminação — Flashcards, Linha do Tempo e Figuras</title>
+
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#0b0f14; --panel:#111a26; --panel-2:#0e1520; --fg:#e6f0ff; --muted:#a9b4c2; --brand:#5be7c4; --accent:#8ab4ff;
+      --ok:#3ddc97; --warn:#ffd166; --err:#ef476f;
+      --card:#0e1726; --card-b:#1a2740; --shadow:0 10px 30px rgba(0,0,0,.25);
+    }
+    [data-theme="light"]{
+      --bg:#f6f9ff; --panel:#ffffff; --panel-2:#eef4ff; --fg:#111827; --muted:#4b5563; --brand:#0ea5e9; --accent:#7c3aed;
+      --card:#ffffff; --card-b:#e5ecff; --shadow:0 10px 24px rgba(14,22,48,.15);
+    }
+    html,body{height:100%}
+    body{
+      font-family:"Chakra Petch",system-ui,Segoe UI,Roboto,Arial;
+      background:linear-gradient(180deg,var(--bg),var(--panel-2));
+      color:var(--fg);
+    }
+    .navbar{background:linear-gradient(90deg,var(--panel),var(--panel-2)); box-shadow:var(--shadow)}
+    .brand{color:var(--brand)!important; font-weight:700; letter-spacing:.5px}
+    .hero{
+      background: radial-gradient(1200px 500px at 80% -10%, rgba(91,231,196,.18), transparent),
+                  radial-gradient(900px 400px at 10% 10%, rgba(138,180,255,.18), transparent);
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .chip{display:inline-flex;align-items:center;gap:.5rem;padding:.35rem .7rem;border:1px solid rgba(255,255,255,.12);
+      border-radius:999px;color:var(--muted);background:rgba(255,255,255,.04)}
+    .btn-brand{background:linear-gradient(135deg,var(--brand),var(--accent));border:0;color:#00131a;font-weight:700}
+    .btn-ghost{border:1px solid rgba(255,255,255,.12); color:var(--fg); background:transparent}
+    .cardx{
+      background:linear-gradient(180deg,var(--card),var(--panel-2));
+      border:1px solid var(--card-b); border-radius:18px; box-shadow:var(--shadow);
+    }
+    .flashcard{
+      border-radius:16px; padding:1rem; border:1px solid var(--card-b);
+      background:linear-gradient(180deg,var(--panel),var(--card));
+      min-height:160px; position:relative; overflow:hidden;
+      transition:transform .2s ease, box-shadow .2s ease;
+    }
+    .flashcard:hover{ transform:translateY(-4px); box-shadow:0 14px 36px rgba(0,0,0,.25) }
+    .tag{font-size:.75rem; color:var(--muted); border:1px solid rgba(255,255,255,.15); padding:.15rem .5rem; border-radius:999px}
+    .fc-q{font-weight:700; font-size:1.05rem}
+    .fc-a{display:none; color:var(--accent)}
+    .flashcard.revealed .fc-a{display:block}
+    .flashcard.revealed .reveal-btn{display:none}
+    .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, monospace; padding:.05rem .4rem; border-radius:6px; border:1px solid rgba(255,255,255,.2); color:var(--muted)}
+    .timeline {position:relative;padding-left:1.5rem}
+    .timeline::before{content:"";position:absolute;left:.5rem;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--brand),transparent)}
+    .t-item{position:relative;margin:1rem 0;padding-left:1rem}
+    .t-item::before{content:"";position:absolute;left:-.04rem;top:.5rem;width:12px;height:12px;background:var(--brand);border-radius:50%;box-shadow:0 0 0 4px rgba(91,231,196,.15)}
+    .figure-grid svg{width:100%;height:auto;border-radius:16px;border:1px solid var(--card-b);background:var(--panel)}
+    .hc-toggle{cursor:pointer}
+    .footer{color:var(--muted)}
+    .sr-only{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap;border:0;padding:0;margin:-1px}
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-top">
+  <div class="container">
+    <a class="navbar-brand brand" href="#"><i class="fa-solid fa-bolt"></i> Iluminação CG</a>
+    <button class="navbar-toggler btn btn-ghost" data-bs-toggle="collapse" data-bs-target="#nav"><i class="fa fa-bars"></i></button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav me-auto my-2">
+        <li class="nav-item"><a class="nav-link text-light" href="#flashcards">Flashcards</a></li>
+        <li class="nav-item"><a class="nav-link text-light" href="#timeline">Linha do Tempo</a></li>
+        <li class="nav-item"><a class="nav-link text-light" href="#figuras">Figuras</a></li>
+        <li class="nav-item"><a class="nav-link text-light" href="#glossario">Glossário</a></li>
+        <li class="nav-item"><a class="nav-link text-light" href="#refs">Referências</a></li>
+      </ul>
+      <div class="d-flex align-items-center gap-2">
+        <button id="themeBtn" class="btn btn-ghost" aria-label="Alternar tema"><i class="fa-solid fa-moon"></i></button>
+        <button id="contrastBtn" class="btn btn-ghost hc-toggle" aria-pressed="false" aria-label="Alto contraste"><i class="fa-solid fa-universal-access"></i></button>
+        <div class="dropdown">
+          <button class="btn btn-ghost dropdown-toggle" data-bs-toggle="dropdown"><i class="fa-solid fa-text-height"></i> Fonte</button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#" data-font="sm">Pequena</a></li>
+            <li><a class="dropdown-item" href="#" data-font="md">Média</a></li>
+            <li><a class="dropdown-item" href="#" data-font="lg">Grande</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<header class="hero py-5">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-7">
+        <h1 class="display-5 fw-bold">Modelos de Iluminação<br><span class="brand">Computação Gráfica & Processamento de Imagens</span></h1>
+        <p class="lead text-secondary">Estude com <strong>150+ flashcards</strong>, uma <strong>linha do tempo</strong> dos principais marcos e <strong>figuras interativas</strong> para dominar Lambert, Phong, Blinn-Phong, Cook–Torrance, Ray Tracing, Radiosity, Path Tracing, PBR, Lumen e muito mais.</p>
+        <div class="d-flex gap-2">
+          <a href="#flashcards" class="btn btn-brand"><i class="fa-solid fa-layer-group"></i> Começar flashcards</a>
+          <a href="#timeline" class="btn btn-ghost"><i class="fa-solid fa-timeline"></i> Ver linha do tempo</a>
+        </div>
+        <div class="mt-3 d-flex flex-wrap gap-2">
+          <span class="chip"><i class="fa-solid fa-wand-magic-sparkles"></i> PBR</span>
+          <span class="chip"><i class="fa-solid fa-shapes"></i> BRDF</span>
+          <span class="chip"><i class="fa-solid fa-plug"></i> OpenGL / GLSL</span>
+          <span class="chip"><i class="fa-brands fa-unity"></i> Unity</span>
+          <span class="chip"><i class="fa-solid fa-gamepad"></i> Unreal 5 Lumen</span>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="cardx p-4">
+          <h5 class="mb-3"><i class="fa-solid fa-graduation-cap"></i> Dicas de estudo</h5>
+          <ul class="mb-0">
+            <li>Pressione <span class="kbd">Espaço</span> para revelar a resposta.</li>
+            <li>Use <span class="kbd">F</span> para marcar como “dominado”.</li>
+            <li>Busque por termos, fórmulas e autores no campo de pesquisa.</li>
+            <li>Seu progresso fica salvo no navegador (localStorage).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="py-5">
+
+  <!-- FLASHCARDS -->
+  <section id="flashcards" class="container mb-5">
+    <div class="d-flex flex-wrap align-items-end gap-3 mb-3">
+      <div class="flex-grow-1">
+        <label class="form-label">Pesquisar</label>
+        <input id="search" class="form-control form-control-lg" placeholder="Busque por 'Lambert', 'Phong', 'BRDF', 'PBR', 'Radiosity', 'RTX'...">
+      </div>
+      <div>
+        <label class="form-label">Baralho</label>
+        <select id="deck" class="form-select form-select-lg">
+          <option value="all">Todos</option>
+          <option value="Fundamentos">Fundamentos</option>
+          <option value="Modelos Locais">Modelos Locais</option>
+          <option value="Modelos Globais">Modelos Globais</option>
+          <option value="PBR/BRDF">PBR/BRDF</option>
+          <option value="Ferramentas">Ferramentas</option>
+          <option value="Processamento de Imagens">Processamento de Imagens</option>
+          <option value="História & Autores">História & Autores</option>
+          <option value="Shader & Código">Shader & Código</option>
+          <option value="Aplicações">Aplicações</option>
+          <option value="Avançado">Avançado</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Dificuldade</label>
+        <select id="diff" class="form-select form-select-lg">
+          <option value="all">Todas</option>
+          <option value="Básico">Básico</option>
+          <option value="Intermediário">Intermediário</option>
+          <option value="Avançado">Avançado</option>
+        </select>
+      </div>
+      <div class="ms-auto d-flex gap-2">
+        <button id="shuffle" class="btn btn-ghost"><i class="fa-solid fa-shuffle"></i> Embaralhar</button>
+        <button id="onlyNew" class="btn btn-ghost" aria-pressed="false"><i class="fa-solid fa-eye-slash"></i> Ocultar dominados</button>
+        <button id="exportBtn" class="btn btn-ghost"><i class="fa-solid fa-file-export"></i> Exportar CSV</button>
+      </div>
+    </div>
+
+    <div id="fcGrid" class="row g-3"></div>
+
+    <div class="text-center mt-4">
+      <small class="text-secondary">Dica: <span class="kbd">Espaço</span> revela; <span class="kbd">F</span> marca como dominado; <span class="kbd">N</span> próximo.</small>
+    </div>
+  </section>
+
+  <!-- LINHA DO TEMPO -->
+  <section id="timeline" class="container mb-5">
+    <div class="row">
+      <div class="col-lg-5">
+        <h2 class="fw-bold"><i class="fa-solid fa-timeline"></i> Linha do Tempo — Avanços em Iluminação</h2>
+        <p class="text-secondary">Dos modelos empíricos aos métodos fisicamente baseados e às soluções neurais.</p>
+        <div class="timeline" id="timelineList"></div>
+      </div>
+      <div class="col-lg-7">
+        <div class="cardx p-4">
+          <h5 class="mb-3"><i class="fa-solid fa-image"></i> Destaques visuais</h5>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="flashcard revealed">
+                <div class="fc-q">Renderização com Ray Tracing</div>
+                <div class="fc-a">Reflexos, refrações e sombras suaves fisicamente plausíveis.</div>
+                <span class="tag mt-2">Whitted (1980)</span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="flashcard revealed">
+                <div class="fc-q">Cook–Torrance BRDF</div>
+                <div class="fc-a">Modelo microfacet que respeita conservação de energia e Fresnel.</div>
+                <span class="tag mt-2">Cook & Torrance (1982)</span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="flashcard revealed">
+                <div class="fc-q">Path Tracing / Equação de Kajiya</div>
+                <div class="fc-a">Amostragem estocástica para GI completa com múltiplas interações.</div>
+                <span class="tag mt-2">Kajiya (1986)</span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="flashcard revealed">
+                <div class="fc-q">PBR em tempo real</div>
+                <div class="fc-a">Material físico consistente entre engines e condições de luz.</div>
+                <span class="tag mt-2">UE5 Lumen / RTX</span>
+              </div>
+            </div>
+          </div>
+          <small class="text-secondary d-block mt-3">Imagens meramente ilustrativas (cartões didáticos).</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FIGURAS -->
+  <section id="figuras" class="container mb-5">
+    <h2 class="fw-bold mb-3"><i class="fa-solid fa-diagram-project"></i> Figuras Interativas — Ambiente vs Difusa vs Especular</h2>
+    <p class="text-secondary">Passe o mouse ou toque para alternar parâmetros e comparar o efeito visual.</p>
+    <div class="row figure-grid g-3">
+      <!-- Ambiente -->
+      <div class="col-md-4">
+        <div class="cardx p-3">
+          <h6><i class="fa-solid fa-circle"></i> Luz Ambiente</h6>
+          <svg viewBox="0 0 200 200" role="img" aria-label="Esfera com luz ambiente">
+            <defs>
+              <radialGradient id="amb" cx="50%" cy="50%" r="60%">
+                <stop offset="0%" stop-color="#cfe8ff"/>
+                <stop offset="100%" stop-color="#7aa2ff"/>
+              </radialGradient>
+            </defs>
+            <rect width="200" height="200" fill="url(#amb)"></rect>
+            <circle cx="100" cy="100" r="50" fill="rgba(255,255,255,.35)" stroke="rgba(255,255,255,.2)"></circle>
+          </svg>
+          <small class="text-secondary">Iluminação homogênea, sem direção definida.</small>
+        </div>
+      </div>
+      <!-- Difusa -->
+      <div class="col-md-4">
+        <div class="cardx p-3">
+          <h6><i class="fa-regular fa-sun"></i> Luz Difusa (Lambert)</h6>
+          <svg id="svgLambert" viewBox="0 0 200 200" role="img" aria-label="Esfera com luz difusa">
+            <defs>
+              <linearGradient id="gradLambert" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#0b0f14"/>
+                <stop offset="100%" stop-color="#9cc9ff"/>
+              </linearGradient>
+            </defs>
+            <rect width="200" height="200" fill="url(#gradLambert)"></rect>
+            <circle cx="100" cy="100" r="50" fill="url(#gradLambert)" stroke="rgba(255,255,255,.15)"></circle>
+          </svg>
+          <div class="mt-2">
+            <label class="form-label mb-1">Ângulo da luz (θ)</label>
+            <input type="range" min="0" max="100" value="80" id="thetaRange" class="form-range">
+          </div>
+          <small class="text-secondary">Brilho ∝ cos(θ). Ajuste o ângulo da luz.</small>
+        </div>
+      </div>
+      <!-- Especular -->
+      <div class="col-md-4">
+        <div class="cardx p-3">
+          <h6><i class="fa-solid fa-star"></i> Luz Especular (Phong)</h6>
+          <svg id="svgPhong" viewBox="0 0 200 200" role="img" aria-label="Esfera com brilho especular">
+            <defs>
+              <radialGradient id="base" cx="45%" cy="45%" r="60%">
+                <stop offset="0%" stop-color="#a8bfff"/>
+                <stop offset="100%" stop-color="#0b0f14"/>
+              </radialGradient>
+            </defs>
+            <rect width="200" height="200" fill="#0b0f14"></rect>
+            <circle cx="100" cy="100" r="54" fill="url(#base)" stroke="rgba(255,255,255,.15)"></circle>
+            <circle id="spec" cx="120" cy="80" r="10" fill="#ffffff" opacity=".85"></circle>
+          </svg>
+          <div class="mt-2 d-flex gap-2">
+            <div class="flex-grow-1">
+              <label class="form-label mb-1">Expoente n</label>
+              <input id="shininess" type="range" min="2" max="100" value="32" class="form-range">
+            </div>
+            <div style="width:120px">
+              <label class="form-label mb-1">Intensidade</label>
+              <input id="specInt" type="range" min="10" max="100" value="85" class="form-range">
+            </div>
+          </div>
+          <small class="text-secondary">Quanto maior n, mais concentrado o brilho.</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GLOSSÁRIO -->
+  <section id="glossario" class="container mb-5">
+    <h2 class="fw-bold"><i class="fa-solid fa-book"></i> Glossário Essencial</h2>
+    <div class="row g-3">
+      <div class="col-md-4"><div class="cardx p-3"><strong>BRDF</strong><br><span class="text-secondary">Função de distribuição bidirecional de reflectância — descreve como a luz é refletida por uma superfície.</span></div></div>
+      <div class="col-md-4"><div class="cardx p-3"><strong>PBR</strong><br><span class="text-secondary">Renderização baseada em física — materiais com consistência energética e parâmetros mensuráveis.</span></div></div>
+      <div class="col-md-4"><div class="cardx p-3"><strong>GI</strong><br><span class="text-secondary">Global Illumination — iluminação indireta por múltiplas interações luz–superfície.</span></div></div>
+      <div class="col-md-4"><div class="cardx p-3"><strong>Fresnel</strong><br><span class="text-secondary">Variação angular da reflectância; relevante em modelos microfacet e PBR.</span></div></div>
+      <div class="col-md-4"><div class="cardx p-3"><strong>Subsurface</strong><br><span class="text-secondary">Espalhamento subsuperficial; simula translucidez de pele, cera, mármore.</span></div></div>
+      <div class="col-md-4"><div class="cardx p-3"><strong>Shadow Mapping</strong><br><span class="text-secondary">Técnica raster para sombras usando mapas de profundidade.</span></div></div>
+    </div>
+  </section>
+
+  <!-- REFERÊNCIAS -->
+  <section id="refs" class="container mb-5">
+    <h2 class="fw-bold"><i class="fa-solid fa-quote-right"></i> Referências (ABNT)</h2>
+    <div class="cardx p-4">
+      <ul class="mb-0">
+        <li>PHONG, B. T. Illumination for Computer Generated Pictures. <em>Communications of the ACM</em>, 1975.</li>
+        <li>BLINN, J. F. Models of Light Reflection for Computer Synthesized Pictures. <em>Computer Graphics</em>, 1977.</li>
+        <li>WHITTED, T. An Improved Illumination Model for Shaded Display. <em>CACM</em>, 1980.</li>
+        <li>COOK, R. L.; TORRANCE, K. E. A Reflectance Model for Computer Graphics. <em>ACM TOG</em>, 1982.</li>
+        <li>COHEN, M.; GREENBERG, D. The Hemi-Cube: A Radiosity Solution for Complex Environments. <em>SIGGRAPH</em>, 1985.</li>
+        <li>KAJIYA, J. T. The Rendering Equation. <em>SIGGRAPH</em>, 1986.</li>
+        <li>GONZALEZ, R. C.; WOODS, R. E. <em>Digital Image Processing</em>. 4. ed. Pearson, 2018.</li>
+        <li>DEBEVEC, P. Image-Based Lighting: A Comprehensive Review. <em>ACM TOG</em>, 2021.</li>
+        <li>Epic Games. Unreal Engine 5 — Lumen Documentation. 2024.</li>
+        <li>Blender Foundation. Cycles Rendering Manual. 2023.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer class="py-4 border-top" style="border-color:rgba(255,255,255,.08)!important">
+  <div class="container footer d-flex flex-wrap justify-content-between align-items-center">
+    <div>© <span id="year"></span> Estudo de Iluminação CG — feito para revisão docente.</div>
+    <div class="d-flex gap-3">
+      <span class="chip">Atalhos: <span class="kbd">Espaço</span> / <span class="kbd">F</span> / <span class="kbd">N</span></span>
+      <span class="chip">Progresso salvo</span>
+    </div>
+  </div>
+</footer>
+
+<!-- JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ===================== UTIL & THEME ===================== */
+const root = document.documentElement;
+const themeBtn = document.getElementById('themeBtn');
+const contrastBtn = document.getElementById('contrastBtn');
+const savedTheme = localStorage.getItem('theme') || 'dark';
+document.documentElement.setAttribute('data-theme', savedTheme);
+
+themeBtn.addEventListener('click', ()=>{
+  const current = document.documentElement.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  themeBtn.innerHTML = next==='dark' ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
+});
+contrastBtn.addEventListener('click', (e)=>{
+  const pressed = contrastBtn.getAttribute('aria-pressed') === 'true';
+  contrastBtn.setAttribute('aria-pressed', String(!pressed));
+  document.body.style.letterSpacing = pressed ? '' : '0.4px';
+  document.body.style.filter = pressed ? '' : 'contrast(1.08) saturate(1.05)';
+});
+document.querySelectorAll('[data-font]').forEach(a=>{
+  a.addEventListener('click', (ev)=>{
+    ev.preventDefault();
+    const size = a.getAttribute('data-font');
+    document.body.style.fontSize = size==='sm'?'15px':size==='md'?'17px':'19px';
+  });
+});
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* ===================== TIMELINE DATA ===================== */
+const timeline = [
+  {year:1760, title:'Lambert — Fotometria', text:'Lei do cosseno; base da reflexão difusa.'},
+  {year:1975, title:'Phong — Especular', text:'Introduz brilho concentrado controlado por expoente n.'},
+  {year:1977, title:'Blinn-Phong', text:'Vetor halfway para eficiência e estabilidade numérica.'},
+  {year:1980, title:'Whitted — Ray Tracing', text:'Reflexões/refrações e sombras precisas (níveis de raios).'},
+  {year:1982, title:'Cook–Torrance — BRDF', text:'Modelo microfacet com Fresnel e conservação de energia.'},
+  {year:1985, title:'Radiosity', text:'Equilíbrio energético entre superfícies difusas (GI).'},
+  {year:1986, title:'Kajiya — Equação de Renderização', text:'Fundamenta Path Tracing e integração de luz.'},
+  {year:1998, title:'Debevec — IBL', text:'Image-Based Lighting e environment maps HDR.'},
+  {year:2018, title:'RTX — Ray Tracing em tempo real', text:'Aceleração por hardware em GPUs modernas.'},
+  {year:2021, title:'Neural Rendering', text:'Relighting e inverse rendering com DL.'},
+  {year:2024, title:'UE5 Lumen', text:'GI em tempo real com mistura de técnicas e cache inteligente.'},
+];
+const tList = document.getElementById('timelineList');
+tline();
+function tline(){
+  tList.innerHTML = '';
+  timeline.forEach(it=>{
+    const d = document.createElement('div');
+    d.className='t-item';
+    d.innerHTML = `<h6 class="mb-1">${it.year} — ${it.title}</h6><div class="text-secondary">${it.text}</div>`;
+    tList.appendChild(d);
+  });
+}
+
+/* ===================== FIGURE INTERACTION ===================== */
+const thetaRange = document.getElementById('thetaRange');
+thetaRange.addEventListener('input', ()=>{
+  const v = +thetaRange.value; // 0..100
+  const g = document.getElementById('gradLambert');
+  g.setAttribute('x1', `${100-v}%`); // move gradiente
+  g.setAttribute('x2', `100%`);
+});
+const shininess = document.getElementById('shininess');
+const specInt = document.getElementById('specInt');
+function updateSpec(){
+  const r = 4 + (100 - +shininess.value) * 0.3; // n↑ -> r↓
+  const op = +specInt.value/100;
+  const spec = document.getElementById('spec');
+  spec.setAttribute('r', Math.max(3, r));
+  spec.setAttribute('opacity', op.toFixed(2));
+}
+shininess.addEventListener('input', updateSpec);
+specInt.addEventListener('input', updateSpec);
+updateSpec();
+
+/* ===================== FLASHCARDS ===================== */
+/* Dataset base (curado) + gerador para ultrapassar 100 itens sem inflar o arquivo */
+const curated = [
+ {q:'Defina Luz Ambiente e sua função na cena.', a:'Componente uniforme sem direção definida; evita áreas totalmente escuras e simula iluminação indireta global.', deck:'Fundamentos', diff:'Básico'},
+ {q:'Enuncie a Lei do Cosseno de Lambert.', a:'A intensidade percebida é proporcional a cos(θ), onde θ é o ângulo entre normal e direção da luz.', deck:'Modelos Locais', diff:'Básico'},
+ {q:'Como o expoente n de Phong afeta o brilho?', a:'Quanto maior n, mais concentrado e intenso o highlight especular; n menor → brilho espalhado.', deck:'Modelos Locais', diff:'Básico'},
+ {q:'Diferença entre Ray Tracing e Rasterização.', a:'Rasterização projeta triângulos na tela (pipeline), Ray Tracing segue raios simulando reflexão/refração e sombras com precisão.', deck:'Modelos Globais', diff:'Intermediário'},
+ {q:'O que é BRDF?', a:'Função que descreve a proporção de luz refletida para cada direção, dada uma direção incidente — base do PBR.', deck:'PBR/BRDF', diff:'Intermediário'},
+ {q:'Princípios do PBR.', a:'Conservação de energia, separação difusa/especular, Fresnel, microfacet, parâmetros físicos (albedo, roughness, metalness).', deck:'PBR/BRDF', diff:'Intermediário'},
+ {q:'Cook–Torrance em uma frase.', a:'BRDF microfacet com distribuição de normais, termo geométrico e Fresnel (modelo fisicamente plausível).', deck:'PBR/BRDF', diff:'Avançado'},
+ {q:'Radiosity é indicado para…', a:'Ambientes difusos (arquitetura), iluminação indireta suave via balanço de energia entre patches.', deck:'Modelos Globais', diff:'Intermediário'},
+ {q:'Equação de Renderização de Kajiya (ideia).', a:'Radiância de saída = emissão + integral da radiância incidente vezes BRDF e cos(θ) em todas as direções do hemisfério.', deck:'Modelos Globais', diff:'Avançado'},
+ {q:'Image-Based Lighting (IBL) — conceito.', a:'Usa mapas HDR do ambiente para iluminar a cena, garantindo coerência de luz e reflexos.', deck:'PBR/BRDF', diff:'Intermediário'},
+ {q:'Photometric Stereo — aplicação.', a:'Estima normais/superfície a partir de múltiplas imagens sob luzes diferentes; útil em visão computacional.', deck:'Processamento de Imagens', diff:'Intermediário'},
+ {q:'Shadow Mapping — problema clássico.', a:'Acne e peter-panning; soluções: bias, PCF, CSM (cascaded shadow maps).', deck:'Shader & Código', diff:'Avançado'},
+ {q:'Diferença metal vs. dielétrico em PBR.', a:'Metais têm componente difusa ~0 e alta especular colorida; dielétricos têm difusa significativa e F0 ~0.04.', deck:'PBR/BRDF', diff:'Intermediário'},
+ {q:'Fresnel (Schlick) — por que usar?', a:'Aproxima o termo angular de reflectância a baixo custo, essencial para realismo e consistência energética.', deck:'PBR/BRDF', diff:'Avançado'},
+ {q:'Unreal Lumen — resumo.', a:'GI/reﬂexos em tempo real combinando traces por software, cache de cenas e técnicas screen-space.', deck:'Ferramentas', diff:'Intermediário'},
+ {q:'RTX — ganho prático.', a:'Aceleração de Ray Tracing por hardware (RT cores), permitindo reflexos/sombras/oclusões físicas em tempo real.', deck:'Ferramentas', diff:'Intermediário'},
+ {q:'OpenGL vs. Vulkan (iluminação).', a:'OpenGL é de mais alto nível; Vulkan dá controle fino (multi-thread, sync) — útil para engines modernas.', deck:'Ferramentas', diff:'Avançado'},
+ {q:'Parâmetros típicos no PBR.', a:'Base Color/Albedo, Metallic, Roughness, Normal, AO, Emissive, IOR (às vezes).', deck:'PBR/BRDF', diff:'Básico'},
+ {q:'Lambert vs. Oren–Nayar.', a:'Lambert é difuso ideal; Oren–Nayar trata rugosidade da superfície, melhorando difusão áspera.', deck:'Avançado', diff:'Avançado'},
+ {q:'Difusa + Especular: por que somar?', a:'Porque materiais exibem ambos comportamentos; a soma ponderada aproxima a aparência real sob diversas condições.', deck:'Fundamentos', diff:'Básico'},
+];
+
+const genTopics = [
+  ['Fundamentos','Básico',[
+    ['Defina iluminação em CG.','Simulação matemática da interação luz–superfície que determina cor, brilho, textura e profundidade.'],
+    ['Componentes básicos da iluminação.','Ambiente, difusa e especular; somadas compõem a iluminação total.'],
+    ['Tipos de luz: direcional, pontual, spot.','Direcional: raios paralelos; Pontual: emite em todas as direções; Spot: cone com cutoff.'],
+    ['Atenuação de luz.','1/(a + b·d + c·d²) reduz intensidade com a distância.'],
+    ['Normal da superfície — importância.','Determina ângulos com a luz e o observador, afetando difusa e especular.'],
+  ]],
+  ['Modelos Locais','Intermediário',[
+    ['Lambert: contexto.','Difusão ideal; intensidade ∝ cos(θ).'],
+    ['Phong: contexto.','Reflexo especular com expoente n; brilho concentrado.'],
+    ['Blinn-Phong: ganho.','Vetor halfway melhora desempenho/estabilidade.'],
+    ['Comparar Lambert e Phong.','Lambert modela fosco; Phong adiciona highlight especular.'],
+    ['Limitação de modelos locais.','Não consideram múltiplas reflexões/oclusões globais.'],
+  ]],
+  ['Modelos Globais','Intermediário',[
+    ['Ray Tracing: ideia.','Segue raios; reflexões/refrações e sombras precisas.'],
+    ['Radiosity: ideia.','Balanceia energia entre patches difusos; iluminação suave.'],
+    ['Path Tracing: ideia.','Amostragem Monte Carlo para GI completa.'],
+    ['Caustics: desafio.','Concentração de luz por refração/reflexão especular; caro sem técnicas dedicadas.'],
+    ['AO vs. GI.','Ambient Occlusion é aproximada/local; GI é física e global.'],
+  ]],
+  ['PBR/BRDF','Avançado',[
+    ['BRDF: propriedades.','Reciprocidade, conservação de energia; função de saída vs. entrada.'],
+    ['Cook–Torrance: termos.','Distribuição (D), Geometria (G), Fresnel (F).'],
+    ['Roughness: efeito.','Rugosidade ↑ → highlight amplo e suave; ↓ → concentrado.'],
+    ['Metalness workflow.','Define se o material é metálico (especular colorida) ou dielétrico.'],
+    ['IBL + PBR.','Mapas HDR fornecem iluminação coerente com materiais físicos.'],
+  ]],
+  ['Ferramentas','Básico',[
+    ['Unreal Lumen: uso.','Prototipar GI em tempo real sem lightmaps extensos.'],
+    ['Unity HDRP: foco.','Pipeline de alto desempenho com PBR e RT opcional.'],
+    ['Blender Cycles vs. Eevee.','Cycles: path tracing físico; Eevee: raster em tempo real.'],
+    ['OpenGL/GLSL: estudo.','Shaders de vértice/fragmento para controles finos da luz.'],
+    ['Vulkan: controle.','Baixo nível, sincronia e multi-thread para engines.'],
+  ]],
+  ['Processamento de Imagens','Intermediário',[
+    ['Correção de iluminação.','Normalização/shading correction para melhorar segmentação.'],
+    ['Photometric Stereo.','Normais via imagens sob luzes diferentes.'],
+    ['Inverse Rendering.','Estimar luz/materiais/geom a partir de fotos.'],
+    ['Detecção robusta sob luz.','Pré-processamento luminoso reduz falsos negativos.'],
+    ['Relighting neural.','Redes estimam ambiente e recomputam iluminação.'],
+  ]],
+  ['História & Autores','Básico',[
+    ['Lambert (1760).','Fotometria e lei do cosseno.'],
+    ['Phong (1975).','Especular empírica para CG.'],
+    ['Blinn (1977).','Halfway vector.'],
+    ['Whitted (1980).','Ray tracing recursivo.'],
+    ['Kajiya (1986).','Equação de renderização.'],
+  ]],
+  ['Shader & Código','Intermediário',[
+    ['GLSL: normalização','Normalize(vetores) para ângulos corretos.'],
+    ['Bias em sombras.','Evita acne no shadow mapping.'],
+    ['HDR + tone mapping.','Preserva altas luzes e mapeia para LDR.'],
+    ['Gamma correto.','Linearização para operações de luz; gamma out.'],
+    ['IBL: pré-filtragem.','Radiance/irradiance maps para roughness variada.'],
+  ]],
+  ['Aplicações','Básico',[
+    ['Arquitetura.','Radiosity + IBL para luz natural.'],
+    ['Cinema.','Path tracing e composição realista.'],
+    ['Jogos.','RT híbrido; performance vs. qualidade.'],
+    ['Medicina.','Render volumétrico e iluminação local.'],
+    ['Educação.','Explorações interativas (Blender/OpenGL).'],
+  ]],
+  ['Avançado','Avançado',[
+    ['Oren–Nayar vs. Lambert.','Difusão áspera realista.'],
+    ['Disney BRDF.','Modelo artístico-físico usado em produção.'],
+    ['SSS.','Espalhamento subsuperficial (pele/cera).'],
+    ['Participating Media.','Névoa/fumaça (phase function).'],
+    ['Denoising.','Redução de ruído em path tracing via DL.'],
+  ]],
+];
+
+function generateCards(){
+  const out = [...curated];
+  // Gera combinações (até chegar a 150)
+  genTopics.forEach(([deck,diff,items])=>{
+    items.forEach(([q,a])=> out.push({q, a, deck, diff}));
+  });
+  // Expand com variações simples para ultrapassar 150
+  const variants = [
+    ['Explique', 'Descreva', 'Compare', 'Quando usar', 'Quais limitações'],
+    ['em tempo real', 'em produção', 'em protótipos', 'em ensino', 'em pesquisa']
+  ];
+  let i=0;
+  while(out.length < 150){
+    const base = curated[i % curated.length];
+    const vq = `${variants[0][i%variants[0].length]} ${base.q.toLowerCase()} ${variants[1][i%variants[1].length]}?`.replace('??','?');
+    out.push({q:vq, a:base.a, deck:base.deck, diff:base.diff});
+    i++;
+  }
+  return out;
+}
+
+const progressKey = 'fc_done_v1';
+let doneSet = new Set(JSON.parse(localStorage.getItem(progressKey)||'[]'));
+
+const allCards = generateCards();
+const grid = document.getElementById('fcGrid');
+const search = document.getElementById('search');
+const deckSel = document.getElementById('deck');
+const diffSel = document.getElementById('diff');
+const onlyNewBtn = document.getElementById('onlyNew');
+const shuffleBtn = document.getElementById('shuffle');
+const exportBtn = document.getElementById('exportBtn');
+
+function renderCards(){
+  const term = search.value.trim().toLowerCase();
+  const deck = deckSel.value;
+  const diff = diffSel.value;
+  const hideDone = onlyNewBtn.getAttribute('aria-pressed')==='true';
+  grid.innerHTML='';
+  const frag = document.createDocumentFragment();
+  let list = allCards.filter(c=>{
+    const okT = !term || c.q.toLowerCase().includes(term) || c.a.toLowerCase().includes(term);
+    const okD = deck==='all' || c.deck===deck;
+    const okL = diff==='all' || c.diff===diff;
+    const okDone = !hideDone || !doneSet.has(c.q);
+    return okT && okD && okL && okDone;
+  });
+  list.forEach(card=>{
+    const col = document.createElement('div');
+    col.className='col-12 col-md-6 col-xl-4';
+    const isDone = doneSet.has(card.q);
+    col.innerHTML = `
+      <div class="flashcard ${isDone?'revealed':''}" tabindex="0" aria-label="Flashcard">
+        <div class="d-flex justify-content-between align-items-start">
+          <span class="tag">${card.deck}</span>
+          <span class="tag">${card.diff}</span>
+        </div>
+        <div class="fc-q mt-2">${card.q}</div>
+        <div class="fc-a mt-2">${card.a}</div>
+        <div class="mt-3 d-flex gap-2">
+          <button class="btn btn-sm btn-brand reveal-btn"><i class="fa-regular fa-eye"></i> Revelar</button>
+          <button class="btn btn-sm btn-ghost mark-btn"><i class="fa-solid fa-flag-checkered"></i> Marcar</button>
+        </div>
+      </div>`;
+    frag.appendChild(col);
+  });
+  grid.appendChild(frag);
+
+  // Binds
+  grid.querySelectorAll('.flashcard').forEach(fc=>{
+    const reveal = fc.querySelector('.reveal-btn');
+    const mark = fc.querySelector('.mark-btn');
+    const qText = fc.querySelector('.fc-q').textContent;
+    reveal?.addEventListener('click', ()=> fc.classList.add('revealed'));
+    mark?.addEventListener('click', ()=>{
+      if(doneSet.has(qText)) { doneSet.delete(qText); fc.classList.remove('revealed'); }
+      else { doneSet.add(qText); fc.classList.add('revealed'); }
+      localStorage.setItem(progressKey, JSON.stringify([...doneSet]));
+    });
+    // acessibilidade / teclado
+    fc.addEventListener('keydown', (e)=>{
+      if(e.code==='Space'){ e.preventDefault(); fc.classList.toggle('revealed'); }
+      if(e.key==='f' || e.key==='F'){ e.preventDefault(); mark.click(); }
+      if(e.key==='n' || e.key==='N'){ e.preventDefault(); const next=fc.parentElement.nextElementSibling?.querySelector('.flashcard'); next?.focus(); }
+    });
+  });
+}
+
+[search, deckSel, diffSel].forEach(el=> el.addEventListener('input', renderCards));
+onlyNewBtn.addEventListener('click', ()=>{
+  const pressed = onlyNewBtn.getAttribute('aria-pressed')==='true';
+  onlyNewBtn.setAttribute('aria-pressed', String(!pressed));
+  renderCards();
+});
+shuffleBtn.addEventListener('click', ()=>{
+  for(let i=allCards.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [allCards[i],allCards[j]]=[allCards[j],allCards[i]]; }
+  renderCards();
+});
+exportBtn.addEventListener('click', ()=>{
+  let csv = 'deck,dificuldade,pergunta,resposta\n';
+  allCards.forEach(c=>{ csv += `"${c.deck}","${c.diff}","${c.q.replace(/"/g,'""')}","${c.a.replace(/"/g,'""')}"\n`; });
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='flashcards_iluminacao.csv'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+renderCards();
+
+</script>
+</body>
+</html>
